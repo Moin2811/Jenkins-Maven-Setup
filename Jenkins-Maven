@@ -1,0 +1,69 @@
+[200~Install Jenkins on Ubuntu 22.04
+==================================================
+sudo apt update -y
+sudo apt-get install openjdk-17-jdk
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee     /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]     https://pkg.jenkins.io/debian-stable binary/ | sudo tee     /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install jenkins -y
+
+===================================================
+Jenkins Setup on Amazon Linux
+===================================================
+To run jenkins using binary try below steps
+sudo amazon-linux-extras install java-openjdk11
+wget https://get.jenkins.io/war-stable/2.303.3/jenkins.war
+java -jar jenkins.war > /dev/null 2>&1 &
+
+Or
+================================================
+install jenkins as a service use these steps
+================================================
+ssh to the instance and run sudo yum update -y command
+sudo amazon-linux-extras install java-openjdk11
+sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo
+sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins.io.key
+sudo yum install jenkins -y
+
+if you get this error Error: Package: jenkins-2.303.2-1.1.noarch (jenkins)
+Requires: daemonize
+sudo amazon-linux-extras install epel -y
+sudo yum install daemonize
+sudo yum install jenkins -y
+
+==============================================================
+Webhook Setup
+=============================================================
+http://jenkins(IP):8080/github-webhook/
+
+=============================================================
+maven setup
+=============================================================
+sudo yum remove maven -y
+wget https://mirrors.estointernet.in/apache/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
+or
+wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
+sudo tar xf apache-maven-*.tar.gz -C /opt
+sudo ln -s /opt/apache-maven-3.8.5 /opt/maven
+/opt/maven/bin/mvn archetype:generate -DgroupId=test.app -DartifactId=myjava-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
+git init
+git add .
+git commit 
+create repo and add it and then git push
+create new job and add the repo then execute these commands
+/opt/maven/bin/mvn clean
+/opt/maven/bin/mvn compiler:compile
+/opt/maven/bin/mvn verify
+/opt/maven/bin/mvn package
+aws s3 cp $WORKSPACE/target/*.jar s3://lab2-s3bucket89/
+
+
+==============================================================
+docker
+==============================================================
+sudo amazon-linux-extras install docker -y
+crete credentials as secret text type
+1. dockerpwd  :  Copy docker hub pwd
+2. dpeloymentserverpwd: any password
+
+sudo chmod 777 /var/run/docker.sock
